@@ -1,0 +1,47 @@
+/* DevicePage.module.css */
+
+.pageContainer {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.contentContainer {
+    max-width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.heading {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.subHeading {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.dateInput {
+    padding: 8px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 200px;
+    margin-top: 10px;
+}
+
+.chartContainer {
+    width: 100%;
+    justify-content: center;
+    align-content: center;
+    display: flex;
+}

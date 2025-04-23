@@ -1,0 +1,45 @@
+.device-card {
+    min-width: 35%;
+    margin: 0 7% 7%;
+    padding: 3%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.device-icon {
+    text-align: center;
+    font-size: 48px;
+}
+
+.device-info {
+    color: #333;
+}
+
+.device-info h3 {
+    margin: 8px 0;
+}
+
+.device-info p {
+    margin: 4px 0;
+}
+
+.websocket-message {
+    font-size: 14px;
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.good-status {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.bad-status {
+    background-color: #f8d7da;
+    color: #bd131f;
+    border: 1px solid #f5c6cb;
+}

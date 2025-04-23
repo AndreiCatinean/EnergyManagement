@@ -1,0 +1,188 @@
+services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--accesslog=true"
+      - "--accesslog.fields.defaultMode=keep"
+      - "--accesslog.fields.headers.names.X-Forwarded-For=keep"
+      - "--accesslog.fields.headers.names.User-Agent=keep"
+      - "--log.level=DEBUG"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    profiles:
+      - docker
+
+  backend1:
+    build:
+      context: ./user-backend
+      dockerfile: Dockerfile
+    depends_on:
+      - db1
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_IP=db1
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_DBNAME=user_db
+    labels:
+      - "traefik.http.services.backend1.loadbalancer.server.port=8080"
+      - "traefik.http.routers.backend1.rule=Host(`localhost`) && PathPrefix(`/api/user`)"
+      - "traefik.http.routers.backend1.middlewares=strip-api-user"
+      - "traefik.http.middlewares.strip-api-user.stripPrefix.prefixes=/api/user"
+    profiles:
+      - docker
+    deploy:
+      replicas: 2
+
+
+  backend2:
+    build:
+      context: ./device-backend
+      dockerfile: Dockerfile
+    depends_on:
+      - db2
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_IP=db2
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_DBNAME=device_db
+    labels:
+      - "traefik.http.services.backend2.loadbalancer.server.port=8081"
+      - "traefik.http.routers.backend2.rule=Host(`traefik`) || Host(`localhost`) && PathPrefix(`/api/device`)"
+      - "traefik.http.routers.backend2.middlewares=strip-api-device"
+      - "traefik.http.middlewares.strip-api-device.stripPrefix.prefixes=/api/device"
+    profiles:
+      - docker
+    deploy:
+      replicas: 2
+
+
+  backend3:
+    build:
+      context: ./energy-monitoring-backend
+      dockerfile: Dockerfile
+    depends_on:
+      - db3
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_IP=db3
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_DBNAME=monitoring_db
+    labels:
+      - "traefik.http.services.backend3.loadbalancer.server.port=8082"
+      - "traefik.http.routers.backend3.rule=Host(`localhost`) && PathPrefix(`/api/monitoring`)"
+      - "traefik.http.routers.backend3.middlewares=strip-api-monitoring"
+      - "traefik.http.middlewares.strip-api-monitoring.stripPrefix.prefixes=/api/monitoring"
+    profiles:
+      - docker
+
+  backend4:
+      build:
+        context: ./chat-backend
+        dockerfile: Dockerfile
+      depends_on:
+        - db4
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+        - DB_IP=db4
+        - DB_PORT=5432
+        - DB_USER=postgres
+        - DB_PASSWORD=postgres
+        - DB_DBNAME=chat_db
+      labels:
+        - "traefik.http.services.backend4.loadbalancer.server.port=8083"
+        - "traefik.http.routers.backend4.rule=Host(`traefik`) || Host(`localhost`) && PathPrefix(`/api/chat`)"
+        - "traefik.http.routers.backend4.middlewares=strip-api-chat"
+        - "traefik.http.middlewares.strip-api-chat.stripPrefix.prefixes=/api/chat"
+      profiles:
+        - docker
+
+
+
+  frontend:
+    build:
+      context: ./react-frontend
+      dockerfile: Dockerfile
+    env_file:
+      - /react-frontend/.env.docker
+    labels:
+      - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    profiles:
+      - docker
+
+  db1:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - db1_data:/var/lib/postgresql/data
+
+  db2:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: device_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - db2_data:/var/lib/postgresql/data
+
+  db3:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: monitoring_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - db3_data:/var/lib/postgresql/data
+
+  db4:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chat_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - db4_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+volumes:
+  db1_data:
+  db2_data:
+  db3_data:
+  db4_data:

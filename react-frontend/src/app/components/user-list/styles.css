@@ -1,0 +1,22 @@
+.users-container {
+    text-align: center;
+    margin: 0 0 2% 2%;
+    background-color: #f4f4f4;
+    border-radius: 3%;
+    padding: 2%;
+    width: 35%;
+}
+
+.users-list {
+    padding: 1%;
+    background-color: #f4f4f4;
+    border-radius: 3%;
+}
+
+.user-item {
+    margin-bottom: 3%;
+    padding: 2%;
+    background-color: #fff;
+    border-radius: 3%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
